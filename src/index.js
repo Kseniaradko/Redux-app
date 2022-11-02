@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { completeTask, taskDeleted, titleChanged, getTasks, loadTasks, getTasksLoadingStatus } from './store/task';
+import { completeTask, taskDeleted, titleChanged, getTasks, loadTasks, getTasksLoadingStatus, createdTask } from './store/task';
 import configureStore from './store/store';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import { getError } from './store/errors';
@@ -53,6 +53,7 @@ const App = () => {
         </li>
       ))}
     </ul>
+    <button onClick={() => dispatch(createdTask())}>Добавить задачу!</button>
   </>
 }
 
