@@ -1,29 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import * as actions from './store/actions';
-import { initiateStore } from './store/store';
+import { completeTask, taskDeleted, titleChanged, getTasks, loadTasks, getTasksLoadingStatus } from './store/task';
+import configureStore from './store/store';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+import { getError } from './store/errors';
 
-const store = initiateStore()
+const store = configureStore()
 
 const App = () => {
-  const [state, setState] = useState(store.getState())
-
+  const state = useSelector(getTasks())
+  const isLoading = useSelector(getTasksLoadingStatus())
+  const error = useSelector(getError())
+  const dispatch = useDispatch()
+  
   useEffect(() => {
-    store.subscribe(() => setState(store.getState))
+    dispatch(loadTasks())
   }, [])
 
-  const completeTask = (taskId) => {
-    store.dispatch(actions.taskCompleted(taskId))
-  }
-
   const changeTitle = (taskId) => {
-    store.dispatch(actions.titleChanged(taskId))
+    dispatch(titleChanged(taskId))
   }
 
   const deleteTask = (taskId) => {
-    store.dispatch(actions.taskDeleted(taskId))
+    dispatch(taskDeleted(taskId))
   }
-  console.log(state)
+
+  if (isLoading) {
+    return <h1>Loading</h1>
+  }
+
+  if (error.length) {
+    return <p>{error}</p>
+  }
 
   return <>
     <h1>App</h1>
@@ -32,7 +40,7 @@ const App = () => {
         <li key={el.id}>
           <p>{el.title}</p>
           <p>{`Completed: ${el.completed}`}</p>
-          <button onClick={() => completeTask(el.id)}>
+          <button onClick={() => dispatch(completeTask(el.id))}>
             Complete
           </button>
           <button onClick={() => changeTitle(el.id)}>
@@ -51,7 +59,9 @@ const App = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>
 );
 
